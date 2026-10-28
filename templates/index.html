@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Delivery Location Clustering System</title>
+
+    <link
+        rel="stylesheet"
+        href="../static/style.css"
+    >
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <h1>Delivery Location Clustering System</h1>
+            <p>
+                Intelligent geographic grouping for efficient
+                delivery management
+            </p>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- Dashboard Statistics -->
+        <section class="stats">
+            <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div>
+                    <p class="stat-label">Total Deliveries</p>
+                    <h2>{{ total_deliveries }}</h2>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">📍</div>
+                <div>
+                    <p class="stat-label">Delivery Areas</p>
+                    <h2>{{ total_clusters }}</h2>
+                </div>
+            </div>
+        </section>
+
+        <!-- Delivery Area Summary -->
+        <section class="section">
+            <div class="section-heading">
+                <div>
+                    <h2>Delivery Area Summary</h2>
+                    <p>Explore the geographic delivery groups</p>
+                </div>
+            </div>
+
+            <div class="area-grid">
+                {% for area in areas %}
+                <article class="area-card">
+                    <div class="area-card-top">
+                        <span class="cluster-badge">
+                            Cluster {{ area.cluster_id }}
+                        </span>
+                        <span class="location-icon">📍</span>
+                    </div>
+
+                    <h3>{{ area.name }}</h3>
+
+                    <div class="delivery-count">
+                        <strong>{{ area.count }}</strong>
+                        <span>delivery locations</span>
+                    </div>
+
+                    <div class="coordinates">
+                        <p>Cluster Center</p>
+                        <span>
+                            {{ area.latitude }},
+                            {{ area.longitude }}
+                        </span>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+
+            <p class="note">
+                Area names are approximate directional labels
+                derived from cluster centers, not verified
+                neighborhood names.
+            </p>
+        </section>
+
+        <!-- Prediction Form -->
+        <section class="section">
+            <div class="section-heading">
+                <div>
+                    <h2>Predict Delivery Area</h2>
+                    <p>
+                        Find which cluster a new delivery location
+                        belongs to.
+                    </p>
+                </div>
+            </div>
+
+            <form method="POST" action="/" class="prediction-form">
+
+                <div class="form-group">
+                    <label for="latitude">Latitude</label>
+                    <input
+                        type="number"
+                        step="any"
+                        id="latitude"
+                        name="latitude"
+                        placeholder="e.g. 20.2961"
+                        value="{{ request.form.get('latitude', '') }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="longitude">Longitude</label>
+                    <input
+                        type="number"
+                        step="any"
+                        id="longitude"
+                        name="longitude"
+                        placeholder="e.g. 85.8245"
+                        value="{{ request.form.get('longitude', '') }}"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="predict-button">
+                    Predict Area
+                    <span>→</span>
+                </button>
+
+            </form>
+
+            {% if prediction %}
+            <div class="prediction-result">
+                <div class="result-icon">✓</div>
+
+                <div class="result-content">
+                    <p class="result-label">Predicted Delivery Area</p>
+                    <h3>{{ prediction.name }}</h3>
+
+                    <p>
+                        Cluster ID:
+                        <strong>{{ prediction.cluster_id }}</strong>
+                    </p>
+
+                    <p>
+                        Coordinates:
+                        {{ prediction.latitude }},
+                        {{ prediction.longitude }}
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- Interactive Map -->
+        <section class="section">
+            <div class="section-heading">
+                <div>
+                    <h2>Interactive Delivery Map</h2>
+                    <p>
+                        View delivery locations and cluster centers
+                        on the map.
+                    </p>
+                </div>
+            </div>
+
+            <div class="map-legend">
+                <span><i class="legend-dot blue"></i> Cluster 0</span>
+                <span><i class="legend-dot red"></i> Cluster 1</span>
+                <span><i class="legend-dot green"></i> Cluster 2</span>
+                <span><i class="legend-dot purple"></i> Cluster 3</span>
+                <span><i class="legend-dot orange"></i> Cluster 4</span>
+            </div>
+
+            <div class="map-container">
+                {{ map_html | safe }}
+            </div>
+
+            <p class="map-note">
+                Click a marker to see its delivery ID, cluster,
+                and area name.
+            </p>
+        </section>
+
+        <footer class="footer">
+            <p>Delivery Location Clustering System</p>
+            <span>Powered by Python, Flask, Folium and K-Means</span>
+        </footer>
+
+    </main>
+
+</body>
+</html>
